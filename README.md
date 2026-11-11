@@ -44,6 +44,10 @@ npm start            # run
 npm run installer    # dist\ (portable) and release\ (installer)
 ```
 
+## Support
+
+These apps are free and stay free. If they've made your hauls better and you'd like to say thanks, you can [buy me a coffee](https://buymeacoffee.com/johnevansau320). More apps and mods: [johnevansau.com](https://johnevansau.com).
+
 ## Licence
 
 MIT. Not affiliated with SCS Software. Inspired by the GMC Mod Manager; no code from it is used.
