@@ -1,0 +1,44 @@
+{
+  "name": "truck-mod-manager",
+  "version": "1.0.0",
+  "description": "Compact mod manager for American Truck Simulator and Euro Truck Simulator 2",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "package": "electron-packager . \"Truck Mod Manager\" --platform=win32 --arch=x64 --out=dist --overwrite --prune=true --icon=build/icon.ico --ignore=^/dist --ignore=^/release --ignore=\"Start Mod Manager.bat\" --ignore=icon-source.webp",
+    "installer": "npm run package && electron-builder --win nsis --prepackaged \"dist/Truck Mod Manager-win32-x64\" --publish never"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@electron/packager": "^20.3.0",
+    "electron": "^45.2.3",
+    "electron-builder": "^26.18.0"
+  },
+  "dependencies": {
+    "adm-zip": "^0.6.1"
+  },
+  "productName": "Truck Mod Manager",
+  "build": {
+    "appId": "com.local.truckmodmanager",
+    "productName": "Truck Mod Manager",
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico",
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "shortcutName": "Truck Mod Manager"
+    }
+  },
+  "author": "kajotech"
+}

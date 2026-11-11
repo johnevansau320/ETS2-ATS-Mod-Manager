@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'">
+<title>Truck Mod Manager</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="bar">
+  <div class="seg" id="gameSeg">
+    <button data-game="ets2" class="on">ETS2</button>
+    <button data-game="ats">ATS</button>
+  </div>
+  <select id="profile" title="Profile"></select>
+  <span class="ver" id="ver" title="Installed game version"></span>
+  <button id="incompat" title="Active mods incompatible with the game version. Click to show only incompatible mods.">⚠ 0</button>
+  <span class="dirty" id="dirty" hidden>● unsaved</span>
+  <span class="spacer"></span>
+  <button id="undo" title="Ctrl+Z" disabled>Undo</button>
+  <button id="redo" title="Ctrl+Y" disabled>Redo</button>
+  <button id="folders" title="Extra mod folders">Folders…</button>
+  <button id="reload">Reload</button>
+  <button id="backup">Backup</button>
+  <button id="launch">Launch</button>
+  <button id="save" class="primary" disabled>Save load order</button>
+</header>
+
+<main class="panes">
+  <section class="pane" id="availPane">
+    <div class="ph">
+      <h2>Available <span class="count" id="availCount"></span></h2>
+      <input id="availSearch" type="search" placeholder="Search available…">
+      <select id="srcFilter" title="Source">
+        <option value="">All sources</option><option value="STEAM">Workshop</option><option value="FILE">Local files</option>
+      </select>
+      <button id="addAll" title="Activate all shown">Add all</button>
+    </div>
+    <ul class="list" id="availList" data-list="avail"></ul>
+  </section>
+
+  <section class="pane active" id="activePane">
+    <div class="ph">
+      <h2>Load order <span class="count" id="activeCount"></span></h2>
+      <input id="activeSearch" type="search" placeholder="Search active…">
+      <button id="up" title="Move up">▲</button>
+      <button id="down" title="Move down">▼</button>
+      <button id="top">Top</button>
+      <button id="bottom">Bottom</button>
+      <button id="removeSel">Remove</button>
+    </div>
+    <div class="hint">Top = highest priority (wins conflicts). Drag, or use the buttons. Ctrl/Shift-click to multi-select, double-click to toggle.</div>
+    <ul class="list" id="activeList" data-list="active"></ul>
+  </section>
+</main>
+
+<div id="findMenu" class="menu" hidden></div>
+
+<dialog id="foldersDlg">
+  <h3>Extra mod folders <span class="count" id="foldersGame"></span></h3>
+  <p class="hint">Folders scanned for .scs / .zip mods, in addition to Documents and Steam Workshop.</p>
+  <ul id="foldersList"></ul>
+  <div class="dlg-actions"><button id="addFolder">Add folder…</button><span class="spacer"></span><button id="closeFolders">Done</button></div>
+</dialog>
+
+<footer class="status"><span id="status">Starting…</span></footer>
+<script src="app.js"></script>
+</body>
+</html>
