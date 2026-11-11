@@ -19,7 +19,7 @@ A compact mod manager for **Euro Truck Simulator 2** and **American Truck Simula
 
 ## Install
 
-Download **Truck Mod Manager Setup 1.0.0.exe** from the [latest release](../../releases/latest) and run it, or use the portable zip (unzip anywhere and run `Truck Mod Manager.exe`).
+Download **TruckModManagerSetup-<version>.exe** from the [latest release](../../releases/latest) and run it, or use the portable zip (unzip anywhere and run `Truck Mod Manager.exe`).
 
 The installer isn't code-signed, so Windows SmartScreen may say *Windows protected your PC*: click **More info**, then **Run anyway**.
 
