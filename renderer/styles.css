@@ -72,3 +72,6 @@ dialog li span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space
 .menu[hidden] { display: none; }
 .menu button { text-align: left; border: 0; background: none; padding: 6px 10px; }
 .menu button:hover { background: var(--row-h); }
+.menu button.danger { color: var(--warn); }
+.menu button.danger:hover { background: rgba(255, 90, 80, .14); }
+.menu .menu-note { padding: 6px 10px; font-size: 12px; color: var(--dim); max-width: 260px; }

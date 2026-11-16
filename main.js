@@ -131,6 +131,29 @@ ipcMain.handle('backup', async (e, file, profileName) => {
   fs.writeFileSync(settingsFile(), JSON.stringify(s, null, 2));
   return r.filePath;
 });
+// Deletes local mod files (right-click > Delete). The renderer only names mod IDs: the files are looked up again
+// here from a fresh scan, only .scs / .zip files from the mod folders qualify (never Workshop items), the user
+// confirms in a native dialog, and the files go to the Recycle Bin so they can be restored.
+ipcMain.handle('delete-mods', async (e, game, ids) => {
+  if (!GAMES[game] || !Array.isArray(ids)) return { deleted: [], failed: [] };
+  const want = new Set(ids.map(String));
+  const targets = scanMods(game, docs(), getFolders(game)).filter((m) => want.has(m.id) && m.source === 'FILE'
+    && /\.(scs|zip)$/i.test(m.file) && (() => { try { return fs.statSync(m.file).isFile(); } catch { return false; } })());
+  if (!targets.length) return { deleted: [], failed: [] };
+  const list = targets.slice(0, 12).map((m) => `• ${m.name || m.id}\n   ${m.file}`).join('\n') + (targets.length > 12 ? `\n… and ${targets.length - 12} more` : '');
+  const r = await dialog.showMessageBox(BrowserWindow.fromWebContents(e.sender), {
+    type: 'warning', title: 'Delete mod', buttons: ['Move to Recycle Bin', 'Cancel'], defaultId: 1, cancelId: 1, noLink: true,
+    message: targets.length === 1 ? 'Delete this mod?' : `Delete these ${targets.length} mods?`,
+    detail: `${list}\n\nThe file${targets.length === 1 ? ' goes' : 's go'} to the Recycle Bin, so you can restore ${targets.length === 1 ? 'it' : 'them'} from there. `
+      + 'Profiles that use the mod will show it as missing until you remove it from their load order.',
+  });
+  if (r.response !== 0) return { cancelled: true, deleted: [], failed: [] };
+  const deleted = [], failed = [];
+  for (const m of targets) {
+    try { await shell.trashItem(m.file); deleted.push(m.id); } catch (err) { failed.push({ id: m.id, name: m.name || m.id, error: String(err.message || err) }); }
+  }
+  return { deleted, failed };
+});
 ipcMain.handle('launch', (_e, game) => shell.openExternal(`steam://rungameid/${GAMES[game].appId}`));
 ipcMain.handle('reveal', (_e, file) => shell.showItemInFolder(file));
 

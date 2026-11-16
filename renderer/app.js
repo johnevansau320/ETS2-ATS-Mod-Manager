@@ -149,7 +149,59 @@ function openFindMenu(btn) {
   menu.style.left = `${Math.max(4, Math.min(r.right - menu.offsetWidth, innerWidth - menu.offsetWidth - 4))}px`;
   menu.onclick = (e) => { const k = e.target.dataset.kind; if (k) { api.findUpdate(k, state.game, mod); menu.hidden = true; } };
 }
-document.addEventListener('click', (e) => { if (!e.target.closest('.find')) $('#findMenu').hidden = true; });
+document.addEventListener('click', (e) => { if (!e.target.closest('.find')) $('#findMenu').hidden = true; $('#ctxMenu').hidden = true; });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { $('#ctxMenu').hidden = true; $('#findMenu').hidden = true; } });
+window.addEventListener('blur', () => { $('#ctxMenu').hidden = true; });
+
+// Right-click menu on a mod: the clicked mod, or the whole selection when the clicked mod is part of it.
+function openContextMenu(e, which) {
+  const li = e.target.closest('.mod'); if (!li) return;
+  e.preventDefault();
+  $('#findMenu').hidden = true;
+  const set = which === 'A' ? state.selA : state.selV;
+  if (!set.has(li.dataset.id)) { set.clear(); set.add(li.dataset.id); state['last' + which] = li.dataset.id; render(); }
+  const ids = [...set];
+  const infos = ids.map((id) => state.mods.get(id)).filter(Boolean);
+  const files = infos.filter((m) => m.source === 'FILE');
+  const one = ids.length === 1 ? state.mods.get(ids[0]) : null;
+  const items = [];
+  if (which === 'A') items.push(['remove', ids.length === 1 ? 'Remove from load order' : `Remove ${ids.length} from load order`]);
+  else if (ids.some((id) => !state.active.some((m) => m.id === id))) items.push(['add', ids.length === 1 ? 'Add to load order' : `Add ${ids.length} to load order`]);
+  if (one?.file) items.push(['reveal', 'Show in folder']);
+  if (one?.workshopId) items.push(['page', 'Open Workshop page (unsubscribe there)']);
+  if (files.length) items.push(['delete', files.length === 1 ? 'Delete mod file…' : `Delete ${files.length} mod files…`, 'danger']);
+  if (!files.length && infos.some((m) => m.source === 'STEAM')) items.push(['', 'Workshop mods are removed by unsubscribing', 'note']);
+  const menu = $('#ctxMenu');
+  menu.innerHTML = items.map(([k, label, cls]) => (k ? `<button data-act="${k}" class="${cls || ''}">${esc(label)}</button>` : `<div class="menu-note">${esc(label)}</div>`)).join('');
+  menu.hidden = false;
+  menu.style.top = `${Math.max(4, Math.min(e.clientY, innerHeight - menu.offsetHeight - 4))}px`;
+  menu.style.left = `${Math.max(4, Math.min(e.clientX, innerWidth - menu.offsetWidth - 4))}px`;
+  menu.onclick = async (ev) => {
+    const act = ev.target.dataset.act; if (!act) return;
+    menu.hidden = true;
+    if (act === 'remove') deactivate(ids);
+    else if (act === 'add') activate(ids, 0);
+    else if (act === 'reveal') api.reveal(one.file);
+    else if (act === 'page') api.findUpdate('page', state.game, { workshopId: one.workshopId, name: one.name });
+    else if (act === 'delete') deleteMods(files.map((m) => m.id));
+  };
+}
+
+async function deleteMods(ids) {
+  let r;
+  try { r = await api.deleteMods(state.game, ids); } catch (e) { return status(`Delete failed: ${e.message}`, true); }
+  if (r.cancelled || (!r.deleted.length && !r.failed.length)) return;
+  const gone = new Set(r.deleted);
+  gone.forEach((id) => { state.selA.delete(id); state.selV.delete(id); });
+  // the mod can no longer load: take it out of this profile's load order too (saved with "Save load order")
+  const inOrder = state.active.filter((m) => gone.has(m.id)).length;
+  if (inOrder) commit(state.active.filter((m) => !gone.has(m.id)));
+  await rescanMods();
+  const msg = `Moved ${r.deleted.length} mod file${r.deleted.length === 1 ? '' : 's'} to the Recycle Bin.`
+    + (inOrder ? ` Removed from this load order: save to keep the change.` : '')
+    + (r.failed.length ? ` Could not delete: ${r.failed.map((f) => f.name).join(', ')} (${r.failed[0].error}).` : '');
+  status(msg, r.failed.length > 0);
+}
 
 function wireList(listEl, which) {
   listEl.addEventListener('click', (e) => {
@@ -157,6 +209,7 @@ function wireList(listEl, which) {
     if (f) { e.stopPropagation(); return openFindMenu(f); }
     clickSelect(e, which);
   });
+  listEl.addEventListener('contextmenu', (e) => openContextMenu(e, which));
   listEl.addEventListener('dblclick', (e) => {
     const li = e.target.closest('.mod'); if (!li) return;
     which === 'A' ? deactivate([li.dataset.id]) : activate([li.dataset.id], 0);

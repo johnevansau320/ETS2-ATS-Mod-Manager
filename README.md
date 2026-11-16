@@ -13,6 +13,7 @@ A compact mod manager for **Euro Truck Simulator 2** and **American Truck Simula
 * **Sort the load order** by dragging, with ▲ ▼ / Top / Bottom, multi-select (Ctrl/Shift-click) and double-click to add or remove. **Undo / Redo** (Ctrl+Z / Ctrl+Y).
 * **Version check**: mods made for an older game version are marked *Incompatible*; the ⚠ button counts the active ones and filters the list to them. The ⟳ button looks for an update (Workshop page, Workshop search or a web search).
 * **Names for every mod**: from the mod's manifest, from what your other profiles saved, or from the Steam Workshop title.
+* **Right-click a mod** to add it to or remove it from the load order, show it in its folder, or **delete** it: local mod files go to the Recycle Bin after you confirm (and leave this profile's load order). Workshop mods are removed by unsubscribing, so the menu opens their Workshop page instead.
 * **Extra mod folders** (*Folders…*) for mods kept outside the game's own mod folder.
 * **Safe saving**: *Save load order* writes the profile's active-mod list only and makes a backup of `profile.sii` first. *Backup* saves a copy wherever you choose.
 * **Launch** starts the game through Steam.
